@@ -1,6 +1,21 @@
 pipeline {
     agent any
 
+    environment {
+        // DockerHub credentials and repository info
+        DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
+        DOCKER_HUB_REPO = 'joshua192'  // Replace with your DockerHub username
+        
+        // Image names and tags
+        API_IMAGE = "${DOCKER_HUB_REPO}/banking-api"
+        PROCESSOR_IMAGE = "${DOCKER_HUB_REPO}/banking-processor"
+        FRONTEND_IMAGE = "${DOCKER_HUB_REPO}/banking-frontend"
+        
+        // Version tag based on build number
+        VERSION = "v1.0.${BUILD_NUMBER}"
+    }
+
+
     stages {
         // Verify installed tools
         stage('Verify Tools') {
@@ -51,6 +66,37 @@ pipeline {
             }
         }
 
+        stage('Lint and Format Check') {
+            parallel {
+                stage('Go Lint') {
+                    steps {
+                        dir('cicd/banking-app/backend-api') {
+                            sh 'go fmt ./...'
+                            sh 'go vet ./...'
+                        }
+                    }
+                }
+                
+                stage('Python Lint') {
+                    steps {
+                        dir('cicd/banking-app/transaction-service') {
+                            echo 'Running flake8...'
+                            sh '/opt/python-tools/bin/flake8 . --exit-zero --count --select=E9,F63,F7,F82 --show-source --statistics'
+                        }
+                    }
+                }
+                
+                stage('JavaScript Lint') {
+                    steps {
+                        dir('cicd/banking-app/frontend') {
+                            sh 'npm install eslint'
+                            sh 'npx eslint . || true'  // Don't fail the build on lint errors
+                        }
+                    }
+                }
+            }
+        }
+        
         // Uncomment other stages as needed
         // stage('Lint and Format Check') { ... }
         // stage('Test') { ... }
