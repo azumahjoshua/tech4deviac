@@ -18,7 +18,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                sh 'go version'
+                sh 'python3 --version'
+                sh 'flake8 --version'
+                sh 'node -v'
+                sh 'npm -v'
             }
         }
         
