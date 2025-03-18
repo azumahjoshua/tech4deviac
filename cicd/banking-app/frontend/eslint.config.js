@@ -1,24 +1,21 @@
-export default {
-    env: {
-        browser: true,
-        node: true,
-        es2021: true,
-    },
+export default [
+    {
+        // Environment settings
+        languageOptions: {
+            ecmaVersion: 2021,
+            sourceType: 'module',
+            globals: {
+                browser: true,
+                node: true,
+            },
+        },
 
-    // Extend from ESLint's recommended rules.
-    extends: ['eslint:recommended'],
-
-    // Parser options allow you to specify the ECMAScript version and module system.
-    parserOptions: {
-        ecmaVersion: 12,
-        sourceType: 'module',
+        // Rules
+        rules: {
+            'no-unused-vars': 'warn',
+            // Add more custom rules here:
+            // 'indent': ['error', 2],
+            // 'quotes': ['error', 'single'],
+        },
     },
-
-    // Custom rules to override the defaults from the extended configurations.
-    rules: {
-        'no-unused-vars': 'warn',
-      // You can add more custom rules here:
-      // 'indent': ['error', 2],
-      // 'quotes': ['error', 'single'],
-    },
-};
+];
