@@ -1,19 +1,19 @@
 pipeline {
     agent any
 
-    // environment {
-    //     // DockerHub credentials and repository info
-    //     DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
-    //     DOCKER_HUB_REPO = 'joshua192'  
+    environment {
+        // DockerHub credentials and repository info
+        DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
+        DOCKER_HUB_REPO = 'joshua192'  
         
-    //     // Image names and tags
-    //     API_IMAGE = "${DOCKER_HUB_REPO}/banking-api"
-    //     PROCESSOR_IMAGE = "${DOCKER_HUB_REPO}/banking-processor"
-    //     FRONTEND_IMAGE = "${DOCKER_HUB_REPO}/banking-frontend"
+        // Image names and tags
+        API_IMAGE = "${DOCKER_HUB_REPO}/banking-api"
+        PROCESSOR_IMAGE = "${DOCKER_HUB_REPO}/banking-processor"
+        FRONTEND_IMAGE = "${DOCKER_HUB_REPO}/banking-frontend"
         
-    //     // Version tag based on build number
-    //     VERSION = "v1.0.${BUILD_NUMBER}"
-    // }
+        // Version tag based on build number
+        VERSION = "v1.0.${BUILD_NUMBER}"
+    }
 
     stages {
         // Clean up workspace before starting
@@ -124,40 +124,44 @@ pipeline {
             }
         }
 
-        // // Build Docker Images
-        // stage('Build Docker Images') {
-        //     parallel {
-        //         stage('Build API Image') {
-        //             steps {
-        //                 dir('cicd/banking-app/backend-api') {
-        //                     sh 'docker build -t ${API_IMAGE}:${VERSION} -t ${API_IMAGE}:latest .'
-        //                 }
-        //             }
-        //         }
+        // Build Docker Images
+        stage('Build Docker Images') {
+            parallel {
+                stage('Build API Image') {
+                    steps {
+                        dir('cicd/banking-app/backend-api') {
+                            sh 'docker build -t ${API_IMAGE}:${VERSION} -t ${API_IMAGE}:latest .'
+                        }
+                    }
+                }
                 
-        //         stage('Build Processor Image') {
-        //             steps {
-        //                 dir('cicd/banking-app/transaction-service') {
-        //                     sh 'docker build -t ${PROCESSOR_IMAGE}:${VERSION} -t ${PROCESSOR_IMAGE}:latest .'
-        //                 }
-        //             }
-        //         }
+                stage('Build Processor Image') {
+                    steps {
+                        dir('cicd/banking-app/transaction-service') {
+                            sh 'docker build -t ${PROCESSOR_IMAGE}:${VERSION} -t ${PROCESSOR_IMAGE}:latest .'
+                        }
+                    }
+                }
                 
-        //         stage('Build Frontend Image') {
-        //             steps {
-        //                 dir('cicd/banking-app/frontend') {
-        //                     sh 'docker build -t ${FRONTEND_IMAGE}:${VERSION} -t ${FRONTEND_IMAGE}:latest .'
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+                stage('Build Frontend Image') {
+                    steps {
+                        dir('cicd/banking-app/frontend') {
+                            sh 'docker build -t ${FRONTEND_IMAGE}:${VERSION} -t ${FRONTEND_IMAGE}:latest .'
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
         always {
-            echo 'Cleaning up workspace...'
-            deleteDir() 
+            script {
+                node {
+                    echo 'Cleaning up workspace...'
+                    deleteDir() 
+                }
+            }
         }
 
         success {
