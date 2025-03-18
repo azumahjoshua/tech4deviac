@@ -3,13 +3,13 @@ pipeline {
 
     environment {
         // DockerHub credentials and repository info
-        DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
-        DOCKER_HUB_REPO = 'joshua192'  
+        DOCKER_HUB_CREDS = credentials('dockerhub-credentials') 
+        DOCKER_HUB_USERNAME = 'joshua192'  
         
         // Image names and tags
-        API_IMAGE = "${DOCKER_HUB_REPO}/banking-api"
-        PROCESSOR_IMAGE = "${DOCKER_HUB_REPO}/banking-processor"
-        FRONTEND_IMAGE = "${DOCKER_HUB_REPO}/banking-frontend"
+        API_IMAGE = "${DOCKER_HUB_USERNAME}/banking-api"
+        PROCESSOR_IMAGE = "${DOCKER_HUB_USERNAME}/banking-processor"
+        FRONTEND_IMAGE = "${DOCKER_HUB_USERNAME}/banking-frontend"
         
         // Version tag based on build number
         VERSION = "v1.0.${BUILD_NUMBER}"
@@ -149,6 +149,26 @@ pipeline {
                             sh 'docker build -t ${FRONTEND_IMAGE}:${VERSION} -t ${FRONTEND_IMAGE}:latest .'
                         }
                     }
+                }
+            }
+        }
+
+        // Push Docker Images
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    // Log in to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin'
+                    }
+
+                    // Push images
+                    sh 'docker push ${API_IMAGE}:${VERSION}'
+                    sh 'docker push ${API_IMAGE}:latest'
+                    sh 'docker push ${PROCESSOR_IMAGE}:${VERSION}'
+                    sh 'docker push ${PROCESSOR_IMAGE}:latest'
+                    sh 'docker push ${FRONTEND_IMAGE}:${VERSION}'
+                    sh 'docker push ${FRONTEND_IMAGE}:latest'
                 }
             }
         }
