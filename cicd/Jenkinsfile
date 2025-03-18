@@ -4,7 +4,7 @@ pipeline {
     environment {
         // DockerHub credentials and repository info
         DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
-        DOCKER_HUB_REPO = 'joshua192'  // Replace with your DockerHub username
+        DOCKER_HUB_REPO = 'joshua192'  
         
         // Image names and tags
         API_IMAGE = "${DOCKER_HUB_REPO}/banking-api"
@@ -14,7 +14,6 @@ pipeline {
         // Version tag based on build number
         VERSION = "v1.0.${BUILD_NUMBER}"
     }
-
 
     stages {
         // Verify installed tools
@@ -81,7 +80,7 @@ pipeline {
                     steps {
                         dir('cicd/banking-app/transaction-service') {
                             echo 'Running flake8...'
-                            sh '/opt/python-tools/bin/flake8 . --exit-zero --count --select=E9,F63,F7,F82 --show-source --statistics'
+                            sh '/opt/python-tools/bin/flake8 . --exit-zero --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=Dockerfile'
                         }
                     }
                 }
@@ -89,21 +88,27 @@ pipeline {
                 stage('JavaScript Lint') {
                     steps {
                         dir('cicd/banking-app/frontend') {
-                            sh 'npm install eslint'
-                            sh 'npx eslint . || true'  // Don't fail the build on lint errors
+                            sh 'npm install'
+                            sh 'npm run lint || true'  
                         }
                     }
                 }
             }
         }
-        
-        // Uncomment other stages as needed
-        // stage('Lint and Format Check') { ... }
-        // stage('Test') { ... }
-        // stage('Build Docker Images') { ... }
-        // stage('Push Images to DockerHub') { ... }
     }
 
-    // Uncomment post block as needed
-    // post { ... }
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            deleteDir() 
+        }
+
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
 }
