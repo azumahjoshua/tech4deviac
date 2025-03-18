@@ -88,8 +88,11 @@ pipeline {
                 stage('JavaScript Lint') {
                     steps {
                         dir('cicd/banking-app/frontend') {
-                            sh 'npm install'
-                            sh 'npm run lint'  // Remove `|| true` to allow the pipeline to fail on lint errors
+                            // Cache node_modules
+                            cache(includes: 'node_modules/', excludes: '', allowStash: true) {
+                                sh 'npm ci'  // Use `npm ci` instead of `npm install`
+                            }
+                            sh 'npm run lint'
                         }
                     }
                 }
