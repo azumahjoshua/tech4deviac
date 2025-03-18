@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         // DockerHub credentials and repository info
-        DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
-        DOCKER_HUB_USERNAME = 'joshua192'
+        DOCKER_HUB_CREDS = credentials('dockerhub-credentials') 
+        DOCKER_HUB_USERNAME = 'joshua192'  
         
         // Image names and tags
         API_IMAGE = "${DOCKER_HUB_USERNAME}/banking-api"
@@ -66,14 +66,12 @@ pipeline {
             }
         }
 
-        // Checkout source code
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        // Lint and format checks
         stage('Lint and Format Check') {
             parallel {
                 stage('Go Lint') {
@@ -105,7 +103,6 @@ pipeline {
             }
         }
 
-        // Run tests
         stage('Test') {
             parallel {
                 stage('Go Tests') {
@@ -127,7 +124,17 @@ pipeline {
             }
         }
 
-        // Build Docker images
+        // Debug Stage
+        stage('Debug') {
+            steps {
+                script {
+                    sh 'pwd'
+                    sh 'ls -la'
+                }
+            }
+        }
+
+        // Build Docker Images
         stage('Build Docker Images') {
             parallel {
                 stage('Build API Image') {
@@ -165,31 +172,35 @@ pipeline {
             }
         }
 
-        // Push Docker images to Docker Hub
-        stage('Push Docker Images') {
-            steps {
-                script {
-                    // Log in to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin'
-                    }
+        // Push Docker Images
+        // stage('Push Docker Images') {
+        //     steps {
+        //         script {
+        //             // Log in to Docker Hub
+        //             withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+        //                 sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin'
+        //             }
 
-                    // Push images
-                    sh 'docker push ${API_IMAGE}:${VERSION}'
-                    sh 'docker push ${API_IMAGE}:latest'
-                    sh 'docker push ${PROCESSOR_IMAGE}:${VERSION}'
-                    sh 'docker push ${PROCESSOR_IMAGE}:latest'
-                    sh 'docker push ${FRONTEND_IMAGE}:${VERSION}'
-                    sh 'docker push ${FRONTEND_IMAGE}:latest'
-                }
-            }
-        }
+        //             // Push images
+        //             sh 'docker push ${API_IMAGE}:${VERSION}'
+        //             sh 'docker push ${API_IMAGE}:latest'
+        //             sh 'docker push ${PROCESSOR_IMAGE}:${VERSION}'
+        //             sh 'docker push ${PROCESSOR_IMAGE}:latest'
+        //             sh 'docker push ${FRONTEND_IMAGE}:${VERSION}'
+        //             sh 'docker push ${FRONTEND_IMAGE}:latest'
+        //         }
+        //     }
+        // }
     }
 
     post {
         always {
-            echo 'Cleaning up workspace...'
-            deleteDir()
+            script {
+                node {
+                    echo 'Cleaning up workspace...'
+                    deleteDir() 
+                }
+            }
         }
 
         success {
