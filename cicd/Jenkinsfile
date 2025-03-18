@@ -17,11 +17,11 @@ pipeline {
 
     stages {
         // Clean up workspace before starting
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
+        // stage('Clean Workspace') {
+        //     steps {
+        //         cleanWs()
+        //     }
+        // }
 
         // Verify installed tools
         stage('Verify Tools') {
