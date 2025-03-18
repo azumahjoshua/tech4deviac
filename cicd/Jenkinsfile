@@ -7,9 +7,9 @@ pipeline {
         DOCKER_HUB_REPO = 'joshua192'  
         
         // Image names and tags
-        // API_IMAGE = "${DOCKER_HUB_REPO}/banking-api"
-        // PROCESSOR_IMAGE = "${DOCKER_HUB_REPO}/banking-processor"
-        // FRONTEND_IMAGE = "${DOCKER_HUB_REPO}/banking-frontend"
+        API_IMAGE = "${DOCKER_HUB_REPO}/banking-api"
+        PROCESSOR_IMAGE = "${DOCKER_HUB_REPO}/banking-processor"
+        FRONTEND_IMAGE = "${DOCKER_HUB_REPO}/banking-frontend"
         
         // Version tag based on build number
         VERSION = "v1.0.${BUILD_NUMBER}"
