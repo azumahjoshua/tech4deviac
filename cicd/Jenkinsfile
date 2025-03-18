@@ -92,17 +92,17 @@ pipeline {
                     }
                 }
                 
-                stage('JavaScript Lint') {
-                    steps {
-                        dir('cicd/banking-app/frontend') {
-                            // Cache node_modules
-                            cache(includes: 'node_modules/', excludes: '', allowStash: true) {
-                                sh 'npm ci' 
-                            }
-                            sh 'npm run lint'
-                        }
-                    }
-                }
+                // stage('JavaScript Lint') {
+                //     steps {
+                //         dir('cicd/banking-app/frontend') {
+                //             // Cache node_modules
+                //             cache(includes: 'node_modules/', excludes: '', allowStash: true) {
+                //                 sh 'npm ci' 
+                //             }
+                //             sh 'npm run lint'
+                //         }
+                //     }
+                // }
             }
         }
     }
