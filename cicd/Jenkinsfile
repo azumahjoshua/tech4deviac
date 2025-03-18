@@ -17,14 +17,14 @@ pipeline {
             }
         }
 
-        stage('Debug') {
-            steps {
-                script {
-                    sh 'pwd'
-                    sh 'ls -la'
-                }
-            }
-        }
+        // stage('Debug') {
+        //     steps {
+        //         script {
+        //             sh 'pwd'
+        //             sh 'ls -la'
+        //         }
+        //     }
+        // }
 
         stage('Build Docker Images') {
             parallel {
