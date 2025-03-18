@@ -89,7 +89,7 @@ pipeline {
                     steps {
                         dir('cicd/banking-app/frontend') {
                             sh 'npm install'
-                            sh 'npm run lint || true'  
+                            sh 'npm run lint'  // Remove `|| true` to allow the pipeline to fail on lint errors
                         }
                     }
                 }
