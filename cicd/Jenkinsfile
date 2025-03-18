@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         // DockerHub credentials and repository info
-        DOCKER_HUB_CREDS = credentials('dockerhub-credentials') 
-        DOCKER_HUB_USERNAME = 'joshua192'  
+        DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
+        DOCKER_HUB_USERNAME = 'joshua192'
         
         // Image names and tags
         API_IMAGE = "${DOCKER_HUB_USERNAME}/banking-api"
@@ -66,12 +66,14 @@ pipeline {
             }
         }
 
+        // Checkout source code
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
+        // Lint and format checks
         stage('Lint and Format Check') {
             parallel {
                 stage('Go Lint') {
@@ -103,6 +105,7 @@ pipeline {
             }
         }
 
+        // Run tests
         stage('Test') {
             parallel {
                 stage('Go Tests') {
@@ -123,75 +126,70 @@ pipeline {
                 }
             }
         }
-        stages {
+
+        // Build Docker images
         stage('Build Docker Images') {
+            parallel {
+                stage('Build API Image') {
+                    steps {
+                        dir('cicd/banking-app/backend-api') {
+                            sh 'pwd'
+                            sh 'ls -la'
+                            sh 'cat Dockerfile'
+                            sh 'docker build -t ${API_IMAGE}:${VERSION} -t ${API_IMAGE}:latest .'
+                        }
+                    }
+                }
+                
+                stage('Build Processor Image') {
+                    steps {
+                        dir('cicd/banking-app/transaction-service') {
+                            sh 'pwd'
+                            sh 'ls -la'
+                            sh 'cat Dockerfile'
+                            sh 'docker build -t ${PROCESSOR_IMAGE}:${VERSION} -t ${PROCESSOR_IMAGE}:latest .'
+                        }
+                    }
+                }
+                
+                stage('Build Frontend Image') {
+                    steps {
+                        dir('cicd/banking-app/frontend') {
+                            sh 'pwd'
+                            sh 'ls -la'
+                            sh 'cat Dockerfile'
+                            sh 'docker build -t ${FRONTEND_IMAGE}:${VERSION} -t ${FRONTEND_IMAGE}:latest .'
+                        }
+                    }
+                }
+            }
+        }
+
+        // Push Docker images to Docker Hub
+        stage('Push Docker Images') {
             steps {
                 script {
-                    sh 'docker build -t ${API_IMAGE}:${VERSION} -t ${API_IMAGE}:latest .'
-                    sh 'docker build -t ${PROCESSOR_IMAGE}:${VERSION} -t ${PROCESSOR_IMAGE}:latest .'
-                    sh 'docker build -t ${FRONTEND_IMAGE}:${VERSION} -t ${FRONTEND_IMAGE}:latest .'
+                    // Log in to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin'
+                    }
+
+                    // Push images
+                    sh 'docker push ${API_IMAGE}:${VERSION}'
+                    sh 'docker push ${API_IMAGE}:latest'
+                    sh 'docker push ${PROCESSOR_IMAGE}:${VERSION}'
+                    sh 'docker push ${PROCESSOR_IMAGE}:latest'
+                    sh 'docker push ${FRONTEND_IMAGE}:${VERSION}'
+                    sh 'docker push ${FRONTEND_IMAGE}:latest'
                 }
             }
         }
     }
-        // Build Docker Images
-        // stage('Build Docker Images') {
-        //     parallel {
-        //         stage('Build API Image') {
-        //             steps {
-        //                 dir('cicd/banking-app/backend-api') {
-        //                     sh 'docker build -t ${API_IMAGE}:${VERSION} -t ${API_IMAGE}:latest .'
-        //                 }
-        //             }
-        //         }
-                
-        //         stage('Build Processor Image') {
-        //             steps {
-        //                 dir('cicd/banking-app/transaction-service') {
-        //                     sh 'docker build -t ${PROCESSOR_IMAGE}:${VERSION} -t ${PROCESSOR_IMAGE}:latest .'
-        //                 }
-        //             }
-        //         }
-                
-        //         stage('Build Frontend Image') {
-        //             steps {
-        //                 dir('cicd/banking-app/frontend') {
-        //                     sh 'docker build -t ${FRONTEND_IMAGE}:${VERSION} -t ${FRONTEND_IMAGE}:latest .'
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        // Push Docker Images
-        // stage('Push Docker Images') {
-        //     steps {
-        //         script {
-        //             // Log in to Docker Hub
-        //             withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-        //                 sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin'
-        //             }
-
-        //             // Push images
-        //             sh 'docker push ${API_IMAGE}:${VERSION}'
-        //             sh 'docker push ${API_IMAGE}:latest'
-        //             sh 'docker push ${PROCESSOR_IMAGE}:${VERSION}'
-        //             sh 'docker push ${PROCESSOR_IMAGE}:latest'
-        //             sh 'docker push ${FRONTEND_IMAGE}:${VERSION}'
-        //             sh 'docker push ${FRONTEND_IMAGE}:latest'
-        //         }
-        //     }
-        // }
-    }
 
     post {
         always {
-            script {
-                node {
-                    echo 'Cleaning up workspace...'
-                    deleteDir() 
-                }
-            }
+            echo 'Cleaning up workspace...'
+            deleteDir()
         }
 
         success {
