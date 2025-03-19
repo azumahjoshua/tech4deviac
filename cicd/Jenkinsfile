@@ -17,14 +17,14 @@ pipeline {
 
     stages {
         // Clean up workspace before starting
-        stage('Clean Workspace') {
+        stage('Cleaning Workspace') {
             steps {
                 cleanWs()
             }
         }
 
         // Verify installed tools
-        stage('Verify Tools') {
+        stage('Verifing Tools') {
             steps {
                 script {
                     // Check Node.js and npm
@@ -66,7 +66,7 @@ pipeline {
             }
         }
 
-        stage('Checkout') {
+        stage('Checking out') {
             steps {
                 checkout scm
             }
