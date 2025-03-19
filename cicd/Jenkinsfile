@@ -2,30 +2,139 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDS = credentials('dockerhub-credentials')
-        DOCKER_HUB_USERNAME = 'joshua192'
+        // DockerHub credentials and repository info
+        DOCKER_HUB_CREDS = credentials('dockerhub-credentials') 
+        DOCKER_HUB_USERNAME = 'joshua192'  
+        
+        // Image names and tags
         API_IMAGE = "${DOCKER_HUB_USERNAME}/banking-api"
         PROCESSOR_IMAGE = "${DOCKER_HUB_USERNAME}/banking-processor"
         FRONTEND_IMAGE = "${DOCKER_HUB_USERNAME}/banking-frontend"
+        
+        // Version tag based on build number
         VERSION = "v1.0.${BUILD_NUMBER}"
     }
 
     stages {
+        // Clean up workspace before starting
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        // Verify installed tools
+        stage('Verify Tools') {
+            steps {
+                script {
+                    // Check Node.js and npm
+                    try {
+                        sh 'node -v'
+                        sh 'npm -v'
+                    } catch (Exception e) {
+                        error("Node.js or npm is not installed. Error: ${e}")
+                    }
+
+                    // Check Go
+                    try {
+                        sh 'go version'
+                    } catch (Exception e) {
+                        error("Go is not installed. Error: ${e}")
+                    }
+
+                    // Check Python
+                    try {
+                        sh 'python3 --version'
+                    } catch (Exception e) {
+                        error("Python3 is not installed. Error: ${e}")
+                    }
+
+                    // Check Flake8
+                    try {
+                        sh 'flake8 --version'
+                    } catch (Exception e) {
+                        error("Flake8 is not installed. Error: ${e}")
+                    }
+
+                    // Check Docker
+                    try {
+                        sh 'docker --version'
+                    } catch (Exception e) {
+                        error("Docker is not installed. Error: ${e}")
+                    }
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        // stage('Debug') {
-        //     steps {
-        //         script {
-        //             sh 'pwd'
-        //             sh 'ls -la'
-        //         }
-        //     }
-        // }
+        stage('Lint and Format Check') {
+            parallel {
+                stage('Go Lint') {
+                    steps {
+                        dir('cicd/banking-app/backend-api') {
+                            sh 'go fmt ./...'
+                            sh 'go vet ./...'
+                        }
+                    }
+                }
+                
+                stage('Python Lint') {
+                    steps {
+                        dir('cicd/banking-app/transaction-service') {
+                            echo 'Running flake8...'
+                            sh '/opt/python-tools/bin/flake8 . --exit-zero --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=Dockerfile'
+                        }
+                    }
+                }
+                
+                stage('JavaScript Lint') {
+                    steps {
+                        dir('cicd/banking-app/frontend') {
+                            sh 'npm install' 
+                            sh 'npm run lint'
+                        }
+                    }
+                }
+            }
+        }
 
+        stage('Test') {
+            parallel {
+                stage('Go Tests') {
+                    steps {
+                        dir('cicd/banking-app/backend-api') {
+                            sh 'go test ./... -v'
+                        }
+                    }
+                }
+                
+                stage('Python Tests') {
+                    steps {
+                        dir('cicd/banking-app/transaction-service') {
+                            echo 'Running pytest...'
+                            sh '/opt/python-tools/bin/pytest'
+                        }
+                    }
+                }
+            }
+        }
+
+        // Debug Stage
+        stage('Debug') {
+            steps {
+                script {
+                    sh 'pwd'
+                    sh 'ls -la'
+                }
+            }
+        }
+
+        // Build Docker Images
         stage('Build Docker Images') {
             parallel {
                 stage('Build API Image') {
@@ -62,16 +171,42 @@ pipeline {
                 }
             }
         }
+
+        // Push Docker Images
+        stage('Push Docker Images') {
+            steps {
+                script {
+                    // Log in to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin'
+                    }
+
+                    // Push images
+                    sh 'docker push ${API_IMAGE}:${VERSION}'
+                    sh 'docker push ${API_IMAGE}:latest'
+                    sh 'docker push ${PROCESSOR_IMAGE}:${VERSION}'
+                    sh 'docker push ${PROCESSOR_IMAGE}:latest'
+                    sh 'docker push ${FRONTEND_IMAGE}:${VERSION}'
+                    sh 'docker push ${FRONTEND_IMAGE}:latest'
+                }
+            }
+        }
     }
 
     post {
         always {
-            echo 'Cleaning up workspace...'
-            deleteDir()
+            script {
+                node {
+                    echo 'Cleaning up workspace...'
+                    deleteDir() 
+                }
+            }
         }
+
         success {
             echo 'Pipeline completed successfully!'
         }
+
         failure {
             echo 'Pipeline failed!'
         }
