@@ -103,7 +103,7 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Testing') {
             parallel {
                 stage('Go Tests') {
                     steps {
@@ -125,7 +125,7 @@ pipeline {
         }
 
         // Debug Stage
-        stage('Debug') {
+        stage('Debuging') {
             steps {
                 script {
                     sh 'pwd'
@@ -135,7 +135,7 @@ pipeline {
         }
 
         // Build Docker Images
-        stage('Build Docker Images') {
+        stage('Building Docker Images') {
             parallel {
                 stage('Build API Image') {
                     steps {
