@@ -13,6 +13,8 @@ pipeline {
         
         // Version tag based on build number
         VERSION = "v1.0.${BUILD_NUMBER}"
+
+        PATH = "/usr/local/go/bin:$PATH"
     }
 
     stages {
