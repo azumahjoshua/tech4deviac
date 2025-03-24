@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: banking-frontend
+  template:
+    metadata:
+      labels:
+        app: banking-frontend
+    spec:
+      containers:
+      - name: banking-frontend
+        image: joshua192/banking-frontend:latest
+        ports:
+        - containerPort: 3000
