@@ -149,3 +149,297 @@ pipeline {
         }
     }
 }
+
+
+@Library('../jenkins/shared_libraries')
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Git branch to build')
+        string(name: 'DOCKER_REPO', defaultValue: 'joshua192', description: 'Docker repository name')
+    }
+
+    stages {
+        stage('Get Commit Info') {
+            steps {
+                script {
+                    // Call shared library function
+                    def commit = getCommitInfo()
+                    echo """
+                    Build Information:
+                    - Commit Hash: ${commit.hash}
+                    - Author: ${commit.author}
+                    - Message: ${commit.message}
+                    """
+                }
+            }
+        }
+
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             // Call shared library function with build args
+        //             buildDockerImage(
+        //                 imageName: "${params.DOCKER_REPO}/my-app",
+        //                 dockerfilePath: "Dockerfile",
+        //                 buildArgs: [
+        //                     APP_VERSION: "1.0.0",
+        //                     BUILD_ENV: "production"
+        //                 ]
+        //             )
+        //         }
+        //     }
+        // }
+
+        // stage('Security Scan') {
+        //     steps {
+        //         script {
+        //             // Call shared library function
+        //             def scanPassed = securityScan(
+        //                 tool: "sonarqube",
+        //                 config: [
+        //                     projectKey: "my-project-${env.BUILD_NUMBER}",
+        //                     sourceDir: "src/"
+        //                 ]
+        //             )
+
+        //             if (!scanPassed) {
+        //                 error "Security scan failed!"
+        //             }
+        //         }
+        //     }
+        // }
+    }
+
+    post {
+        always {
+            echo "Pipeline completed - ${currentBuild.result}"
+        }
+        success {
+            slackSend(message: "Build succeeded: ${env.BUILD_URL}")
+        }
+        failure {
+            slackSend(message: "Build failed: ${env.BUILD_URL}")
+        }
+    }
+}
+
+
+
+// pipeline {
+//     agent any
+
+//     environment {
+//         // DockerHub credentials and repository info
+//         DOCKER_HUB_CREDS = credentials('dockerhub-credentials') 
+//         DOCKER_HUB_USERNAME = 'joshua192'  
+        
+//         // Image names and tags
+//         API_IMAGE = "${DOCKER_HUB_USERNAME}/banking-api"
+//         PROCESSOR_IMAGE = "${DOCKER_HUB_USERNAME}/banking-processor"
+//         FRONTEND_IMAGE = "${DOCKER_HUB_USERNAME}/banking-frontend"
+        
+//         // Version tag based on build number
+//         VERSION = "v1.0.${BUILD_NUMBER}"
+
+//         PATH = "/usr/local/go/bin:$PATH"
+//     }
+
+//     stages {
+//         // Clean up workspace before starting
+//         stage('Cleaning Workspace') {
+//             steps {
+//                 cleanWs()
+//             }
+//         }
+
+//         // Verify installed tools
+//         // stage('Verifing Tools') {
+//         //     steps {
+//         //         script {
+//         //             // Check Node.js and npm
+//         //             try {
+//         //                 sh 'node -v'
+//         //                 sh 'npm -v'
+//         //             } catch (Exception e) {
+//         //                 error("Node.js or npm is not installed. Error: ${e}")
+//         //             }
+
+//         //             // Check Go
+//         //             try {
+//         //                 sh 'go version'
+//         //             } catch (Exception e) {
+//         //                 error("Go is not installed. Error: ${e}")
+//         //             }
+
+//         //             // Check Python
+//         //             try {
+//         //                 sh 'python3 --version'
+//         //             } catch (Exception e) {
+//         //                 error("Python3 is not installed. Error: ${e}")
+//         //             }
+
+//         //             // Check Flake8
+//         //             try {
+//         //                 sh 'flake8 --version'
+//         //             } catch (Exception e) {
+//         //                 error("Flake8 is not installed. Error: ${e}")
+//         //             }
+
+//         //             // Check Docker
+//         //             try {
+//         //                 sh 'docker --version'
+//         //             } catch (Exception e) {
+//         //                 error("Docker is not installed. Error: ${e}")
+//         //             }
+//         //         }
+//         //     }
+//         // }
+
+//         stage('Checking out') {
+//             steps {
+//                 checkout scm
+//             }
+//         }
+
+//         stage('Lint and Format Check') {
+//             parallel {
+//                 stage('Go Lint') {
+//                     steps {
+//                         dir('cicd/banking-app/backend-api') {
+//                             sh 'go fmt ./...'
+//                             sh 'go vet ./...'
+//                         }
+//                     }
+//                 }
+                
+//                 stage('Python Lint') {
+//                     steps {
+//                         dir('cicd/banking-app/transaction-service') {
+//                             echo 'Running flake8...'
+//                             sh '/opt/python-tools/bin/flake8 . --exit-zero --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=Dockerfile'
+//                         }
+//                     }
+//                 }
+                
+//                 stage('JavaScript Lint') {
+//                     steps {
+//                         dir('cicd/banking-app/frontend') {
+//                             sh 'npm install' 
+//                             sh 'npm run lint'
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+
+//         stage('Testing') {
+//             parallel {
+//                 stage('Go Tests') {
+//                     steps {
+//                         dir('cicd/banking-app/backend-api') {
+//                             sh 'go test ./... -v'
+//                         }
+//                     }
+//                 }
+                
+//                 stage('Python Tests') {
+//                     steps {
+//                         dir('cicd/banking-app/transaction-service') {
+//                             echo 'Running pytest...'
+//                             sh '/opt/python-tools/bin/pytest'
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+
+//         // Debug Stage
+//         stage('Debuging') {
+//             steps {
+//                 script {
+//                     sh 'pwd'
+//                     sh 'ls -la'
+//                 }
+//             }
+//         }
+
+//         // Build Docker Images
+//         stage('Building Docker Images') {
+//             parallel {
+//                 stage('Build API Image') {
+//                     steps {
+//                         dir('cicd/banking-app/backend-api') {
+//                             sh 'pwd'
+//                             sh 'ls -la'
+//                             sh 'cat Dockerfile'
+//                             sh 'docker build -t ${API_IMAGE}:${VERSION} -t ${API_IMAGE}:latest .'
+//                         }
+//                     }
+//                 }
+                
+//                 stage('Build Processor Image') {
+//                     steps {
+//                         dir('cicd/banking-app/transaction-service') {
+//                             sh 'pwd'
+//                             sh 'ls -la'
+//                             sh 'cat Dockerfile'
+//                             sh 'docker build -t ${PROCESSOR_IMAGE}:${VERSION} -t ${PROCESSOR_IMAGE}:latest .'
+//                         }
+//                     }
+//                 }
+                
+//                 stage('Build Frontend Image') {
+//                     steps {
+//                         dir('cicd/banking-app/frontend') {
+//                             sh 'pwd'
+//                             sh 'ls -la'
+//                             sh 'cat Dockerfile'
+//                             sh 'docker build -t ${FRONTEND_IMAGE}:${VERSION} -t ${FRONTEND_IMAGE}:latest .'
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+
+//         // Push Docker Images
+//         stage('Push Docker Images') {
+//             steps {
+//                 script {
+//                     // Log in to Docker Hub
+//                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+//                         sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USER} --password-stdin'
+//                     }
+
+//                     // Push images
+//                     sh 'docker push ${API_IMAGE}:${VERSION}'
+//                     sh 'docker push ${API_IMAGE}:latest'
+//                     sh 'docker push ${PROCESSOR_IMAGE}:${VERSION}'
+//                     sh 'docker push ${PROCESSOR_IMAGE}:latest'
+//                     sh 'docker push ${FRONTEND_IMAGE}:${VERSION}'
+//                     sh 'docker push ${FRONTEND_IMAGE}:latest'
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+//         always {
+//             script {
+//                 node {
+//                     echo 'Cleaning up workspace...'
+//                     deleteDir() 
+//                 }
+//             }
+//         }
+
+//         success {
+//             echo 'Pipeline completed successfully!'
+//         }
+
+//         failure {
+//             echo 'Pipeline failed!'
+//         }
+//     }
+// }

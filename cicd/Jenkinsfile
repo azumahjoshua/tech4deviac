@@ -13,8 +13,8 @@ pipeline {
             steps {
                 script {
                     echo "=== ENVIRONMENT DEBUGGING ==="
-                    sh 'pwd'  // Current working directory
-                    sh 'ls -la'  // List all files
+                    sh 'pwd'  
+                    sh 'ls -la'  
                     
                     // Check Jenkins library loading
                     try {
@@ -49,8 +49,6 @@ pipeline {
                 }
             }
         }
-
-        // ... rest of your stages ...
     }
 
     post {
