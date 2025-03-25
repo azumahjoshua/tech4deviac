@@ -126,15 +126,15 @@ pipeline {
             }
         }
 
-        // // Debug Stage
-        // stage('Debuging') {
-        //     steps {
-        //         script {
-        //             sh 'pwd'
-        //             sh 'ls -la'
-        //         }
-        //     }
-        // }
+        // Debug Stage
+        stage('Debuging') {
+            steps {
+                script {
+                    sh 'pwd'
+                    sh 'ls -la'
+                }
+            }
+        }
 
         // Build Docker Images
         stage('Building Docker Images') {
