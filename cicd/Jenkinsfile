@@ -26,47 +26,47 @@ pipeline {
         }
 
         // Verify installed tools
-        stage('Verifing Tools') {
-            steps {
-                script {
-                    // Check Node.js and npm
-                    try {
-                        sh 'node -v'
-                        sh 'npm -v'
-                    } catch (Exception e) {
-                        error("Node.js or npm is not installed. Error: ${e}")
-                    }
+        // stage('Verifing Tools') {
+        //     steps {
+        //         script {
+        //             // Check Node.js and npm
+        //             try {
+        //                 sh 'node -v'
+        //                 sh 'npm -v'
+        //             } catch (Exception e) {
+        //                 error("Node.js or npm is not installed. Error: ${e}")
+        //             }
 
-                    // Check Go
-                    try {
-                        sh 'go version'
-                    } catch (Exception e) {
-                        error("Go is not installed. Error: ${e}")
-                    }
+        //             // Check Go
+        //             try {
+        //                 sh 'go version'
+        //             } catch (Exception e) {
+        //                 error("Go is not installed. Error: ${e}")
+        //             }
 
-                    // Check Python
-                    try {
-                        sh 'python3 --version'
-                    } catch (Exception e) {
-                        error("Python3 is not installed. Error: ${e}")
-                    }
+        //             // Check Python
+        //             try {
+        //                 sh 'python3 --version'
+        //             } catch (Exception e) {
+        //                 error("Python3 is not installed. Error: ${e}")
+        //             }
 
-                    // Check Flake8
-                    try {
-                        sh 'flake8 --version'
-                    } catch (Exception e) {
-                        error("Flake8 is not installed. Error: ${e}")
-                    }
+        //             // Check Flake8
+        //             try {
+        //                 sh 'flake8 --version'
+        //             } catch (Exception e) {
+        //                 error("Flake8 is not installed. Error: ${e}")
+        //             }
 
-                    // Check Docker
-                    try {
-                        sh 'docker --version'
-                    } catch (Exception e) {
-                        error("Docker is not installed. Error: ${e}")
-                    }
-                }
-            }
-        }
+        //             // Check Docker
+        //             try {
+        //                 sh 'docker --version'
+        //             } catch (Exception e) {
+        //                 error("Docker is not installed. Error: ${e}")
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Checking out') {
             steps {
@@ -126,15 +126,15 @@ pipeline {
             }
         }
 
-        // Debug Stage
-        stage('Debuging') {
-            steps {
-                script {
-                    sh 'pwd'
-                    sh 'ls -la'
-                }
-            }
-        }
+        // // Debug Stage
+        // stage('Debuging') {
+        //     steps {
+        //         script {
+        //             sh 'pwd'
+        //             sh 'ls -la'
+        //         }
+        //     }
+        // }
 
         // Build Docker Images
         stage('Building Docker Images') {
