@@ -1,0 +1,6 @@
+label:
+  app: nginx2
+name: mynginx2
+namespace: default
+replicas: 10
+image: redis

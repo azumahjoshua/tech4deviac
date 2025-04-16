@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DATABASE_HOST: mysql-service
+  DATABASE_PORT: "3306"
+  APP_COLOR: blue
+  app.properties: |
+    setting1=value1
+    setting2=value2
+    setting3=value3
+    setting4=value4
+    setting5=value5
