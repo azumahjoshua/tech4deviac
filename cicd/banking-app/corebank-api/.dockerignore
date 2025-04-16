@@ -1,0 +1,26 @@
+# Ignore the Go build artifacts
+*.o
+*.a
+
+# Ignore the Go mod cache
+/vendor/
+
+# Ignore .env files (if they are not used during the build)
+# .env
+
+# Ignore git files and directories
+.git
+.gitignore
+
+# Ignore the venv directory if it's present (in case you use a virtual environment for Python)
+venv/
+
+# Ignore test files
+*.test
+
+# Ignore the IDE or editor-specific files
+.vscode/
+.idea/
+
+# Ignore the Dockerfile itself if not needed in the image (just in case)
+Dockerfile

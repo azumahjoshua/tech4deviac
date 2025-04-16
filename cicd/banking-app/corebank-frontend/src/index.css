@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+  }
+}
+
+@layer utilities {
+  .transaction-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .bg-background {
+    background-color: oklch(var(--background));
+  }
+  .text-foreground {
+    color: oklch(var(--foreground));
+  }
+  .bg-card {
+    background-color: oklch(var(--card));
+  }
+  .text-card-foreground {
+    color: oklch(var(--card-foreground));
+  }
+}
+
+body {
+  background-color: oklch(var(--background));
+  color: oklch(var(--foreground));
+}

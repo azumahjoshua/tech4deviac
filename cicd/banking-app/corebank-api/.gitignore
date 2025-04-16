@@ -1,0 +1,25 @@
+# Ignore Go binary files
+*.exe
+*.exe~
+*.out
+*.test
+*.dSYM
+
+# Go module & dependency files
+vendor/
+
+# Go workspace files
+go.work
+go.sum
+
+# Build output directories
+/build/
+/bin/
+/obj/
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Environment variable files
+.env

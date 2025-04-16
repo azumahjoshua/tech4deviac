@@ -1,0 +1,134 @@
+services:
+  transaction-service:
+    build:
+      context: .
+      dockerfile: transaction_service/Dockerfile
+    container_name: transaction-service
+    ports:
+      - "5000:5000"
+    env_file:
+      - transaction_service/.env
+    environment:
+      PYTHONPATH: /app/transaction_service:/app
+    volumes:
+      - ./transaction_service:/app/transaction_service
+    networks:
+      - banking-app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  go-api:
+    build:
+      context: ./corebank-api
+      dockerfile: Dockerfile
+    container_name: go-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./corebank-api/.env
+    networks:
+      - banking-app-network
+    environment:
+      TRANSACTION_SERVICE_URL: http://transaction-service:5000
+      PYTHON_SERVICE_URL: http://transaction-service:5000
+    depends_on:
+      transaction-service:
+        condition: service_healthy
+
+networks:
+  banking-app-network:
+    driver: bridge
+
+# services:
+#   transaction-service:
+#     build:
+#       context: ./transaction_service  # Changed context to service directory
+#       dockerfile: Dockerfile
+#     container_name: transaction-service
+#     ports:
+#       - "5000:5000"
+#     env_file:
+#       - ./transaction_service/.env  # Added ./ prefix for clarity
+#     environment:
+#       PYTHONPATH: /app:/app/transaction_service  # Added both paths
+#       PYTHONUNBUFFERED: "1"  # Added for better logging
+#     networks:
+#       - banking-app-network
+#     volumes:
+#       - ./transaction_service:/app  # Changed to mount to /app directly
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
+#       start_period: 30s  # Increased for service initialization
+  
+#   go-api:
+#     build:
+#       context: ./corebank-api
+#       dockerfile: Dockerfile
+#     container_name: go-api
+#     ports:
+#       - "8080:8080"
+#     env_file:
+#       - ./corebank-api/.env
+#     networks:
+#       - banking-app-network
+#     environment:
+#       TRANSACTION_SERVICE_URL: http://transaction-service:5000
+#       PYTHON_SERVICE_URL: http://transaction-service:5000  # Added for consistency
+#     depends_on:
+#       transaction-service:
+#         condition: service_healthy
+
+# networks:
+#   banking-app-network:
+#     driver: bridge
+# # services:
+# #   transaction-service:
+# #     build:
+# #       context: .
+# #       dockerfile: transaction_service/Dockerfile
+# #     container_name: transaction-service
+# #     ports:
+# #       - "5000:5000"
+# #     env_file:
+# #       - transaction_service/.env
+# #     environment:
+# #       PYTHONPATH: /app
+# #     networks:
+# #       - banking-app-network
+# #     volumes:
+# #       - ./transaction_service:/app/transaction_service
+# #     healthcheck:
+# #       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+# #       interval: 30s
+# #       timeout: 10s
+# #       retries: 3
+# #       start_period: 10s
+  
+# #   go-api:
+# #     build:
+# #       context: ./corebank-api
+# #       dockerfile: Dockerfile
+# #     container_name: go-api
+# #     ports:
+# #       - "8080:8080"
+# #     env_file:
+# #       - ./corebank-api/.env
+# #     networks:
+# #       - banking-app-network
+# #     environment:
+# #       TRANSACTION_SERVICE_URL: http://transaction-service:5000
+# #     depends_on:
+# #       transaction-service:
+# #         condition: service_healthy
+
+
+# # networks:
+# #   banking-app-network:
+# #     driver: bridge

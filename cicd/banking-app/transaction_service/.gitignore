@@ -1,0 +1,25 @@
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+
+# Dependency files
+*.egg-info/
+dist/
+build/
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Environment variable files
+.env
+
+# Uvicorn-related files (for hot-reloading)
+*.log
+*.pid
