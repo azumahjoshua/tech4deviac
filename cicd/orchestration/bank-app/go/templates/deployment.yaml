@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: corebank-api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: corebank-api
+  template:
+    metadata:
+      labels:
+        app: corebank-api
+    spec:
+      containers:
+        - name: corebank-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.go.port }}
+          envFrom:
+            - secretRef:
+                name: go-secrets

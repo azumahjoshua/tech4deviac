@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-api
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: flask-api
+  template:
+    metadata:
+      labels:
+        app: flask-api
+    spec:
+      containers:
+        - name: flask-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.flask.port }}
+          env:
+            - name: DATABASE_URL
+              value: "{{ .Values.flask.secrets.DATABASE_URL }}"
+            - name: CORE_API_URL
+              value: "{{ .Values.flask.secrets.CORE_API_URL }}"
+            - name: PORT
+              value: "{{ .Values.flask.secrets.PORT }}"
+            - name: DEBUG
+              value: "{{ .Values.flask.secrets.DEBUG }}"

@@ -1,0 +1,14 @@
+image:
+  repository: joshua192/corebank-api
+  tag: latest
+replicaCount: 2
+go:
+  port: 8080
+  secrets:
+    AWS_REGION: us-east-1
+    AWS_ACCESS_KEY_ID: put your aws access keys id
+    AWS_SECRET_ACCESS_KEY: put your aws access key secret here
+    PORT: "8080"
+    TRANSACTION_SERVICE_URL: "http://flask-backend-service:5000"
+serviceAccount:
+  create: true

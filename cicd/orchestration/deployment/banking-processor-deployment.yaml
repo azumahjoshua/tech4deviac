@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-processor
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: banking-processor
+  template:
+    metadata:
+      labels:
+        app: banking-processor
+    spec:
+      containers:
+      - name: banking-processor
+        image: joshua192/banking-processor:latest
+        ports:
+        - containerPort: 5000

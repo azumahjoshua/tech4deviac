@@ -1,0 +1,16 @@
+image:
+  repository: joshua192/transaction_service
+  tag: latest
+
+replicaCount: 2
+
+flask:
+  port: 5000
+  secrets:
+    DATABASE_URL: put your render data base url here
+    CORE_API_URL: http://localhost:8080
+    PORT: "5000"
+    DEBUG: "true"
+
+serviceAccount:
+  create: true
