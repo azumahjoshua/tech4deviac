@@ -24,10 +24,12 @@ jobs:
 
       - name: Build and push Flask Docker image
         run: |
-          docker build -t joshua192/transaction_service:latest -f ./cicd/bank-app/transaction_service/Dockerfile ./cicd/bank-app/transaction_service
+          docker build -t $DOCKER_USERNAME/transaction_service:latest -f ./banking-app/transaction_service/Dockerfile ./banking-app/transaction_service
           docker push joshua192/transaction_service:latest
 
       - name: Build and push Go API Docker image
         run: |
-          docker build -t joshua192/corebank-api:latest -f ./cicd/bank-app/corebank-api/Dockerfile ./cicd/bank-app/corebank-api
+          docker build -t $DOCKER_USERNAME/corebank-api:latest -f ./banking-app/corebank-api/Dockerfile ./banking-app/corebank-api
           docker push joshua192/corebank-api:latest
+
+
