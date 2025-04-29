@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: tech4dev
+  name: tech4dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tech4dev
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: tech4dev
+    spec:
+      volumes:
+      - name: web-config
+        configMap:
+          name: tech4dev-web-cm
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: web-config
+status: {}

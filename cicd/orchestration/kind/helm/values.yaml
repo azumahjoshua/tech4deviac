@@ -1,0 +1,6 @@
+label:
+  app: nginx
+name: mynginx
+namespace: default
+replicas: 10
+image: nginx:1.27.4

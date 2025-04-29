@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overload-deployment
+  namespace: development
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: overload
+  template:
+    metadata:
+      labels:
+        app: overload
+    spec:
+      containers:
+        - name: busybox
+          image: busybox
+          command: ["sh", "-c", "sleep 3600"]
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"

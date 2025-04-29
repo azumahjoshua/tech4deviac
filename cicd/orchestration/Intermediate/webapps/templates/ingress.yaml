@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webapps-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  - http:
+      paths:
+      - path: {{ .Values.app1.ingress.path }}(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: app1
+            port:
+              number: {{ .Values.app1.service.port }}
+      - path: {{ .Values.app2.ingress.path }}(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: app2
+            port:
+              number: {{ .Values.app2.service.port }}
+  tls:
+  - secretName: webapps-tls
+    hosts:
+      - localhost

@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  volumes:
+    - name: shared-data
+      emptyDir: {}
+  containers:
+    - name: nginx
+      image: nginx:1.21
+      ports:
+        - containerPort: 80
+      volumeMounts:
+        - name: shared-data
+          mountPath: /usr/share/nginx/html
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "100m"
+        limits:
+          memory: "128Mi"
+          cpu: "200m"
+
+    - name: busybox
+      image: busybox:latest
+      command: ["/bin/sh", "-c"]
+      args:
+        - while true; do
+            date > /shared-data/date.html;
+            sleep 10;
+          done;
+      volumeMounts:
+        - name: shared-data
+          mountPath: /shared-data

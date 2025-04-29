@@ -1,0 +1,32 @@
+image:
+  repository: prom/node-exporter
+  tag: v1.3.1
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 9100
+  targetPort: 9100
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9100"
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 100Mi
+  requests:
+    cpu: 100m
+    memory: 50Mi
+
+tolerations:
+  - key: node-role.kubernetes.io/control-plane
+    operator: Exists
+    effect: NoSchedule
+  - key: node-role.kubernetes.io/master
+    operator: Exists
+    effect: NoSchedule
+
+nodeSelector: {}
+
+podAnnotations: {}

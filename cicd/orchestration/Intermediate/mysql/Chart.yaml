@@ -1,0 +1,5 @@
+apiVersion: v2
+name: mysql-statefulset
+description: A Helm chart for deploying MySQL with StatefulSet
+version: 0.1.0
+appVersion: "8.0"

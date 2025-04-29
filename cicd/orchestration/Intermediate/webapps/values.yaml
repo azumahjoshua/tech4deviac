@@ -1,0 +1,27 @@
+app1:
+  replicaCount: 2
+  image: nginx
+  tag: alpine
+  service:
+    port: 80
+  ingress:
+    path: /app1
+    pathType: Prefix
+
+app2:
+  replicaCount: 2
+  image: nginx
+  tag: alpine
+  service:
+    port: 80
+  ingress:
+    path: /app2
+    pathType: Prefix
+
+ingress:
+  enabled: true
+  className: "nginx"
+  tls:
+    - secretName: webapps-tls
+      hosts:
+        - localhost

@@ -1,0 +1,28 @@
+replicaCount: 3
+image:
+  repository: mysql
+  tag: lts
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  name: mysql
+  port: 3306
+  headless: true
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: standard
+
+mysqlConfig:
+  myCnf: |
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    innodb_buffer_pool_size = 64M
+    max_connections = 200
+
+auth:
+  rootPassword: mysqlroot
+  secretName: mysql-secret
