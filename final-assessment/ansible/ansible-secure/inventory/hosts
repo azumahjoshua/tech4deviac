@@ -1,0 +1,8 @@
+[local]
+localhost ansible_connection=local
+
+[web]
+# web1.example.com
+
+[db]
+# db1.example.com

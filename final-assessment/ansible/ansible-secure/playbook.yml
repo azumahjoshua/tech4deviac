@@ -1,0 +1,28 @@
+---
+- name: Secure secrets management in virtualenv
+  hosts: local
+  gather_facts: true
+  vars_files:
+    - vault/secrets.yml
+  no_log: true
+
+  tasks:
+    - name: Load vault password from virtualenv
+      ansible.builtin.shell: |
+        cat "$VIRTUAL_ENV/.vault_pass"
+      register: vault_pass
+      changed_when: false
+      no_log: true
+
+    - name: Verify virtualenv activation
+      ansible.builtin.debug:
+        msg: "Virtualenv is active and working"
+      when: lookup('env', 'VIRTUAL_ENV') != ""
+
+    - name: Safe system info (no secrets)
+      ansible.builtin.debug:
+        msg: |
+          System: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Python: {{ ansible_python_version }}
+          Virtualenv: {{ lookup('env', 'VIRTUAL_ENV') is not none | ternary('ACTIVE', 'INACTIVE') }}
+      no_log: false  # Explicitly allow this safe output
